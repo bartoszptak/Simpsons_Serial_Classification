@@ -1,5 +1,6 @@
 import dataset
 import tensorflow as tf
+import cv2
 
 from numpy.random import seed
 
@@ -10,7 +11,6 @@ set_random_seed(2)
 
 batch_size = 32
 
-#classes = ['dogs', 'cats']
 classes = ['abraham_grampa_simpson', 'agnes_skinner', 'apu_nahasapeemapetilon', 'barney_gumble', 'bart_simpson', 'carl_carlson',
            'charles_montgomery_burns', 'chief_wiggum', 'cletus_spuckler', 'comic_book_guy', 'disco_stu', 'edna_krabappel', 'fat_tony', 'gil',
           'groundskeeper_willie', 'homer_simpson', 'kent_brockman', 'krusty_the_clown', 'lenny_leonard', 'lionel_hutz', 'lisa_simpson', 'maggie_simpson', 'marge_simpson', 'martin_prince',
@@ -156,20 +156,18 @@ session.run(tf.global_variables_initializer())
 def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
     acc = session.run(accuracy, feed_dict=feed_dict_train)
     val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
-    msg = "Okrążenie: {0} --- Trening: {1:>6.1%}, Walidacja: {2:>6.1%},  Strata: {3:.3f}"
+    msg = "Loop: {0} # Trening: {1:>6.1%} # Walidacja: {2:>6.1%} # Strata: {3:.3f}"
     print(msg.format(epoch + 1, acc, val_acc, val_loss))
 
 
-total_iterations = 0
 
 saver = tf.train.Saver()
 
 
 def train(num_iteration):
-    global total_iterations
+    step = 0
 
-    for i in range(total_iterations,
-                   total_iterations + num_iteration):
+    while step <= num_iteration:
 
         x_batch, y_true_batch, _, cls_batch = data.train.next_batch(batch_size)
         x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(batch_size)
@@ -181,14 +179,15 @@ def train(num_iteration):
 
         session.run(optimizer, feed_dict=feed_dict_tr)
 
-        if i % int(data.train.num_examples / batch_size) == 0:
+
+        if step % int(data.train.num_examples / batch_size) == 0:
             val_loss = session.run(cost, feed_dict=feed_dict_val)
-            epoch = int(i / int(data.train.num_examples / batch_size))
+            epoch = int(step / int(data.train.num_examples / batch_size))
+
 
             show_progress(epoch, feed_dict_tr, feed_dict_val, val_loss)
-            saver.save(session, './simpsons_model')
+            saver.save(session, './model/simpsons_model')
 
-    total_iterations += num_iteration
-
+        step += 1
 
 train(num_iteration=3000)

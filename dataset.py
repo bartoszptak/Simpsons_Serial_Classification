@@ -11,10 +11,9 @@ def load_train(train_path, image_size, classes):
     img_names = []
     cls = []
 
-    print('Rozpoczynam wczytywać zdjęcia')
     for fields in classes:   
         index = classes.index(fields)
-        print('Wczytuję katalog {} (Etykieta: {})'.format(fields, index))
+        print('Loaded: {} (Label: {})'.format(fields, index))
         path = os.path.join(train_path, fields, '*g')
         files = glob.glob(path)
         for fl in files:
@@ -112,7 +111,3 @@ class DataSet(object):
     end = self._index_in_epoch
 
     return self._images[start:end], self._labels[start:end], self._img_names[start:end], self._cls[start:end]
-
-
-
-

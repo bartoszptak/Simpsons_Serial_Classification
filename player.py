@@ -21,53 +21,50 @@ x= graph.get_tensor_by_name("x:0")
 y_true = graph.get_tensor_by_name("y_true:0")
 y_test_images = np.zeros((1, 42))
 
-
-cap = cv2.VideoCapture(file_path)
-play = True
-
-charakters = {'0': 'Abraham Grampa Simpson',
-       '1': 'Agnes Skinner',
-       '2': 'Apu Nahasapeemapetilon',
-       '3': 'Barney Gumble',
-       '4': 'Bart Simpson',
-       '5': 'Carl Carlson',
-       '6': 'Charles Montgomery Burns',
-       '7': 'Chief Wiggum',
-       '8': 'Cletus Spuckler',
-       '9': 'Comic Book Guy',
-       '10': 'Disco Stu',
-       '11': 'Edna Krabappel',
-       '12': 'Fat Tony',
-       '13': 'Gil',
-       '14': 'Groundskeeper Willie',
-       '15': 'Homer Simpson',
-       '16': 'Kent Brockman',
-       '17': 'Krusty the Clown',
-       '18': 'Lenny Leonard',
-       '19': 'Lionel Hutz',
-       '20': 'Lisa Simpson',
-       '21': 'Maggie Simpson',
-       '22': 'Marge Simpson',
-       '23': 'Martin Prince',
-       '24': 'Mayor Guimby',
-       '25': 'Milhouse van Houten',
-       '26': 'Miss Hoover',
-       '27': 'Moe Szyslak',
-       '28': 'Ned Flanders',
-       '29': 'Nelson Muntz',
-       '30': 'Otto Mann',
-       '31': 'Patty Bouvier',
-       '32': 'Principal Skinner',
-       '33': 'Professor John Frink',
-       '34': 'Rainier Wolfcastle',
-       '35': 'Ralph Wiggum',
-       '36': 'Selma Bouvier',
-       '37': 'Sideshow Bob',
-       '38': 'Sideshow Mel',
-       '39': 'Snake Jailbird',
-       '40': 'Troy Mcclure',
-       '41': 'Waylon Smithers'
+map_characters = {0: 'Abraham Grampa Simpson',
+       1: 'Agnes Skinner',
+       2: 'Apu Nahasapeemapetilon',
+       3: 'Barney Gumble',
+       4: 'Bart Simpson',
+       5: 'Carl Carlson',
+       6: 'Charles Montgomery Burns',
+       7: 'Chief Wiggum',
+       8: 'Cletus Spuckler',
+       9: 'Comic Book Guy',
+       10: 'Disco Stu',
+       11: 'Edna Krabappel',
+       12: 'Fat Tony',
+       13: 'Gil',
+       14: 'Groundskeeper Willie',
+       15: 'Homer Simpson',
+       16: 'Kent Brockman',
+       17: 'Krusty the Clown',
+       18: 'Lenny Leonard',
+       19: 'Lionel Hutz',
+       20: 'Lisa Simpson',
+       21: 'Maggie Simpson',
+       22: 'Marge Simpson',
+       23: 'Martin Prince',
+       24: 'Mayor Guimby',
+       25: 'Milhouse van Houten',
+       26: 'Miss Hoover',
+       27: 'Moe Szyslak',
+       28: 'Ned Flanders',
+       29: 'Nelson Muntz',
+       30: 'Otto Mann',
+       31: 'Patty Bouvier',
+       32: 'Principal Skinner',
+       33: 'Professor John Frink',
+       34: 'Rainier Wolfcastle',
+       35: 'Ralph Wiggum',
+       36: 'Selma Bouvier',
+       37: 'Sideshow Bob',
+       38: 'Sideshow Mel',
+       39: 'Snake Jailbird',
+       40: 'Troy Mcclure',
+       41: 'Waylon Smithers'
        }
+
 
 def predict(frame):
     images = []
@@ -82,17 +79,22 @@ def predict(frame):
     feed_dict_testing = {x: x_batch, y_true: y_test_images}
 
     result = sess.run(y_pred, feed_dict=feed_dict_testing)
-    max = round(np.amax(result) * 100, 2)
-    ind = np.argmax(result)
+
+    return result
+
+def draw(frame, model):
+    max = round(np.amax(model) * 100, 2)
+    ind = np.argmax(model)
+    text = map_characters[ind] + " (" + str(max) + "%)"
+    cv2.rectangle(frame, (0, 0), (len(text) * 16, 40), (255, 255, 255), -1)
     font = cv2.FONT_HERSHEY_SIMPLEX
-    text = charakters[str(ind)] + " (" + str(max) + "%)"
-    cv2.putText(frame, text, (30, 30), font, 1, (0, 0, 150), 2, cv2.LINE_AA)
+    cv2.putText(frame, text, (20, 30), font, 0.8, (0, 0, 255), 2, cv2.LINE_AA)
     return frame
 
+cap = cv2.VideoCapture(file_path)
+play = True
 
-#frame = cv2.imread('data/Capture.PNG')
 while cap.isOpened():
-
 
     key = cv2.waitKey(30) & 0xFF
     if key == ord('q'):
@@ -102,13 +104,9 @@ while cap.isOpened():
 
     if play:
         ret, frame = cap.read()
-        frame = cv2.resize(frame,(0,0),fx=0.5,fy=0.5)
-
-        frame = predict(frame)
-
-
+        a = predict(frame)
+        frame = draw(frame, a)
         cv2.imshow(window_name, frame)
-
 
 cap.release()
 cv2.destroyAllWindows()

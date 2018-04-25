@@ -1,7 +1,7 @@
 import dataset
 import tensorflow as tf
 import cv2
-
+start = cv2.getTickCount()
 from numpy.random import seed
 
 seed(1)
@@ -157,7 +157,7 @@ def show_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
     acc = session.run(accuracy, feed_dict=feed_dict_train)
     val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
     msg = "Loop: {0} # Trening: {1:>6.1%} # Walidacja: {2:>6.1%} # Strata: {3:.3f}"
-    print(msg.format(epoch + 1, acc, val_acc, val_loss))
+    print(msg.format(epoch + 1, acc, val_acc, val_loss),'\n')
 
 
 
@@ -187,7 +187,13 @@ def train(num_iteration):
 
             show_progress(epoch, feed_dict_tr, feed_dict_val, val_loss)
             saver.save(session, './model/simpsons_model')
+            if epoch == 13:
+                break
 
         step += 1
 
-train(num_iteration=3000)
+train(num_iteration=20000)
+stop = cv2.getTickCount()
+time = (stop - start)/ cv2.getTickFrequency()
+print("Konieeeec xd")
+print(time/60)

@@ -1,0 +1,2 @@
+model_checkpoint_path: "simpsons_model"
+all_model_checkpoint_paths: "simpsons_model"
